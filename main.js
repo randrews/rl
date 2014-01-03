@@ -9,6 +9,14 @@ Game.init = function(){
         roomHeight: [5, 10]
     });
     this.map = new Map(100, 40, mapGenerator);
+    var player_start = this.map.player_start;
+    this.player = new Player(player_start[0], player_start[1]);
+
+    var scheduler = new ROT.Scheduler.Simple();
+    scheduler.add(this.player, true);
+    this.engine = new ROT.Engine(scheduler);
+    this.engine.start();
+
     this.draw();
 };
 
@@ -23,4 +31,6 @@ Game.draw = function(){
         case '+': display.draw(x, y, '+', 'f00', '550'); break;
         }
     });
+
+    display.draw(this.player.x, this.player.y, '@', 'fff', '000');
 };

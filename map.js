@@ -1,6 +1,7 @@
 Map = function(w, h, generator){
     this.cells = [];
     this.w = w; this.h = h;
+    this.player_start = null; // Coords of the player, [x, y]
     this.init(generator);
 };
 
@@ -97,4 +98,8 @@ Map.prototype.init = function(generator){
             that.put(x, y, '+');
         });
     });
+
+    // Place the player in a random room
+    var player_room = generator.getRooms().random();
+    that.player_start = [player_room.getLeft()+1, player_room.getTop()+1];
 };
