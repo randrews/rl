@@ -24,8 +24,12 @@ Player.prototype.handleEvent = function(e) {
 
     if(dir || dir == 0){
         var delta = ROT.DIRS[4][dir]; // A two-element array of [dx, dy]
-        this.x += delta[0];
-        this.y += delta[1];
+        var newX = this.x + delta[0], newY = this.y + delta[1];
+        if(Game.map.tryMove(newX, newY)){
+            this.x = newX;
+            this.y = newY;
+        }
+
         Game.draw();
         Game.engine.unlock();
         return e.preventDefault();

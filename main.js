@@ -17,35 +17,37 @@ Game.init = function(){
         tileSet: tileSet,
         tileMap: {
 	    // Floors
-            ".": [0, 24],
-            ",": [24, 24],
-            "`": [48, 24],
-            "_": [72, 24],
-            ";": [96, 24],
-            "'": [120, 24],
+            "floor_1": [0, 24],
+            "floor_2": [24, 24],
+            "floor_3": [48, 24],
+            "floor_4": [72, 24],
+            "floor_5": [96, 24],
+            "floor_6": [120, 24],
 
 	    // Walls
-	    '0': [216, 0],
-	    '1': [360, 0],
-	    '2': [240, 0],
-	    '3': [432, 0],
-	    '4': [312, 0],
-	    '5': [336, 0],
-	    '6': [384, 0],
-	    '7': [552, 0],
-	    '8': [288, 0],
-	    '9': [456, 0],
-	    'A': [264, 0],
-	    'B': [576, 0],
-	    'C': [408, 0],
-	    'D': [528, 0],
-	    'E': [504, 0],
-	    'F': [480, 0],
+	    'wall_0': [216, 0],
+	    'wall_1': [360, 0],
+	    'wall_2': [240, 0],
+	    'wall_3': [432, 0],
+	    'wall_4': [312, 0],
+	    'wall_5': [336, 0],
+	    'wall_6': [384, 0],
+	    'wall_7': [552, 0],
+	    'wall_8': [288, 0],
+	    'wall_9': [456, 0],
+	    'wall_A': [264, 0],
+	    'wall_B': [576, 0],
+	    'wall_C': [408, 0],
+	    'wall_D': [528, 0],
+	    'wall_E': [504, 0],
+	    'wall_F': [480, 0],
 
 	    // Misc
-            "+": [144, 24],
+            "door": [144, 24],
+            "door_open": [168, 24],
             "@": [192, 24],
-            " ": [216, 24]
+            " ": [216, 24],
+            "": [216, 24]
         }
     });
 
@@ -77,14 +79,14 @@ Game.draw = function(){
     var px = this.player.x, py = this.player.y;
     var left = px-15, top = py-8;
     this.map.eachRegion(left, top, 31, 17, function(map, x, y, v){
-	if(v == '+')
-	    display.draw(x-left, y-top, ['.', '+']);
-	else
-	    display.draw(x-left, y-top, v);
-    });
+	if(!v) return;
 
-    var under = this.map.get(px, py);
-    display.draw(15, 8, [under, '@']);
+	var stack = [v];
+	var entity = map.getEntity(x, y); if(entity) stack.push(entity.name);
+
+	if(x == px && y == py) stack.push('@');
+	display.draw(x-left, y-top, stack);
+    });
 };
 
 Game.centerMap = function(display){

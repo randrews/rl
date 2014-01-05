@@ -1,5 +1,6 @@
 Map = function(w, h, generator){
     this.cells = [];
+    this.entities = [];
     this.w = w; this.h = h;
     this.player_start = null; // Coords of the player, [x, y]
     if(generator) this.init(generator);
@@ -12,6 +13,15 @@ Map.prototype.put = function(x, y, v){
 
 Map.prototype.get = function(x, y){
     return this.cells[x+y*this.w];
+};
+
+Map.prototype.putEntity = function(x, y, v){
+    this.entities[x+y*this.w] = v;
+    return this;
+};
+
+Map.prototype.getEntity = function(x, y){
+    return this.entities[x+y*this.w];
 };
 
 Map.prototype.each = function(fn){
@@ -95,15 +105,16 @@ Map.prototype.init = function(generator){
 
     // Turn all room spaces into underscores
     generator.getRooms().forEach(function(room){
-        // Turn all doors into +
+        // Turn all doors into door entities
         room.getDoors(function(x, y){
-            that.put(x, y, '+');
+            that.putEntity(x, y, new Door());
+            that.put(x, y, "floor_" + [1, 2, 3, 4, 5, 6].random());
         });
     });
 
     // Randomize floor spaces
     this.each(function(map, x, y, v){
-        if(v == '.') map.put(x,y,[".", ",", "`", "_", ";", "'"].random());
+        if(v == '.') map.put(x,y,"floor_" + [1, 2, 3, 4, 5, 6].random());
     });
 
     // Turn wall spaces into wall corners, etc
@@ -120,7 +131,7 @@ Map.prototype.init = function(generator){
                           '4', '5', '6', '7',
                           '8', '9', 'A', 'B',
                           'C', 'D', 'E', 'F'];
-            wallMap.put(x,y,digits[n]);
+            wallMap.put(x,y,"wall_"+digits[n]);
         }
     });
 
@@ -131,4 +142,20 @@ Map.prototype.init = function(generator){
     // Place the player in a random room
     var player_room = generator.getRooms().random();
     that.player_start = [player_room.getLeft()+1, player_room.getTop()+1];
+};
+
+Map.prototype.tryMove = function(x, y){
+    var val = this.get(x, y);
+
+    // Can't move into a wall
+    if(val.match("^wall")) return false;
+
+    // Can't walk into a solid entity, bump it instead
+    var entity = this.getEntity(x, y);
+    if(entity && entity.solid) {
+        entity.bump();
+        return false;
+    }
+
+    return true;
 };
