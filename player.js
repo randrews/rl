@@ -26,8 +26,8 @@ Player.prototype.handleEvent = function(e) {
         var delta = ROT.DIRS[4][dir]; // A two-element array of [dx, dy]
         this.x += delta[0];
         this.y += delta[1];
+        Game.draw();
+        Game.engine.unlock();
+        return e.preventDefault();
     }
-
-    Game.draw();
-    Game.engine.unlock();
 }

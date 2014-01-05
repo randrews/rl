@@ -20,6 +20,12 @@ Map.prototype.each = function(fn){
             fn(this, x, y, this.cells[x+y*this.w]);
 };
 
+Map.prototype.eachRegion = function(left, top, w, h, fn){
+    for(var y=top; y < top+h; y++)
+        for(var x=left; x < left+w; x++)
+            fn(this, x, y, this.cells[x+y*this.w]);
+};
+
 Map.prototype.inBounds = function(x, y){
     return x >= 0 && y >= 0 && x < this.w && y < this.h;
 };
@@ -89,14 +95,15 @@ Map.prototype.init = function(generator){
 
     // Turn all room spaces into underscores
     generator.getRooms().forEach(function(room){
-        for(var y=room.getTop(); y <= room.getBottom(); y++)
-            for(var x=room.getLeft(); x <= room.getRight(); x++)
-                that.put(x, y, '_');
-
         // Turn all doors into +
         room.getDoors(function(x, y){
             that.put(x, y, '+');
         });
+    });
+
+    // Randomize floor spaces
+    this.each(function(map, x, y, v){
+        if(v == '.') map.put(x,y,[".", ",", "`", "_", ";", "'"].random());
     });
 
     // Place the player in a random room
