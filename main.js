@@ -5,6 +5,8 @@ Game.init = function(){
 
     var tileSet = document.createElement("img");
     tileSet.src = "tiles.png";
+    var deferred = jQuery.Deferred();
+    tileSet.onload = function(){ deferred.resolve(); }
 
     this.display = new ROT.Display({
         width: 31, height: 17,
@@ -14,6 +16,7 @@ Game.init = function(){
         tileHeight: 24,
         tileSet: tileSet,
         tileMap: {
+	    // Floors
             ".": [0, 24],
             ",": [24, 24],
             "`": [48, 24],
@@ -21,7 +24,25 @@ Game.init = function(){
             ";": [96, 24],
             "'": [120, 24],
 
-            "#": [0, 0],
+	    // Walls
+	    '0': [216, 0],
+	    '1': [360, 0],
+	    '2': [240, 0],
+	    '3': [432, 0],
+	    '4': [312, 0],
+	    '5': [336, 0],
+	    '6': [384, 0],
+	    '7': [552, 0],
+	    '8': [288, 0],
+	    '9': [456, 0],
+	    'A': [264, 0],
+	    'B': [576, 0],
+	    'C': [408, 0],
+	    'D': [528, 0],
+	    'E': [504, 0],
+	    'F': [480, 0],
+
+	    // Misc
             "+": [144, 24],
             "@": [192, 24],
             " ": [216, 24]
@@ -42,9 +63,12 @@ Game.init = function(){
     var scheduler = new ROT.Scheduler.Simple();
     scheduler.add(this.player, true);
     this.engine = new ROT.Engine(scheduler);
-    this.engine.start();
 
-    this.draw();
+    var that = this;
+    deferred.done(function(){
+	that.engine.start();
+	that.draw();
+    });
 };
 
 Game.draw = function(){
@@ -53,19 +77,10 @@ Game.draw = function(){
     var px = this.player.x, py = this.player.y;
     var left = px-15, top = py-8;
     this.map.eachRegion(left, top, 31, 17, function(map, x, y, v){
-	display.draw(x-left, y-top, v);
-
-        // switch(v){
-	// case '.': display.draw(x-left, y-top, v); break;
-	// case ',': display.draw(x-left, y-top, v); break;
-	// case '_': display.draw(x-left, y-top, v); break;
-	// case ';': display.draw(x-left, y-top, v); break;
-	// case '`': display.draw(x-left, y-top, v); break;
-        // case "'": display.draw(x-left, y-top, v); break;
-        // case '#': display.draw(x-left, y-top, '#'); break;
-        // case ' ': display.draw(x-left, y-top, ' '); break;
-        // case '+': display.draw(x-left, y-top, '+'); break;
-        // }
+	if(v == '+')
+	    display.draw(x-left, y-top, ['.', '+']);
+	else
+	    display.draw(x-left, y-top, v);
     });
 
     var under = this.map.get(px, py);

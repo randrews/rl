@@ -2,7 +2,7 @@ Map = function(w, h, generator){
     this.cells = [];
     this.w = w; this.h = h;
     this.player_start = null; // Coords of the player, [x, y]
-    this.init(generator);
+    if(generator) this.init(generator);
 };
 
 Map.prototype.put = function(x, y, v){
@@ -104,6 +104,28 @@ Map.prototype.init = function(generator){
     // Randomize floor spaces
     this.each(function(map, x, y, v){
         if(v == '.') map.put(x,y,[".", ",", "`", "_", ";", "'"].random());
+    });
+
+    // Turn wall spaces into wall corners, etc
+    var wallMap = new Map(this.w, this.h);
+    this.each(function(map, x, y, v){
+        if(v == '#'){
+            var n = 0;
+            if(that.get(x, y-1) == "#") n+=1;
+            if(that.get(x+1, y) == "#") n+=2;
+            if(that.get(x, y+1) == "#") n+=4;
+            if(that.get(x-1, y) == "#") n+=8;
+
+            var digits = ['0', '1', '2', '3',
+                          '4', '5', '6', '7',
+                          '8', '9', 'A', 'B',
+                          'C', 'D', 'E', 'F'];
+            wallMap.put(x,y,digits[n]);
+        }
+    });
+
+    wallMap.each(function(map, x, y, v){
+        if(v) that.put(x, y, v);
     });
 
     // Place the player in a random room
