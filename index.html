@@ -2,11 +2,33 @@
 <html>
   <head>
     <title>Caverns of Death</title>
+
+    <link rel="stylesheet" href="bootstrap.min.css"/>
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="bootstrap.min.js"></script>
+
     <script type="text/javascript" src="rot.js"></script>
     <script type="text/javascript" src="main.js"></script>
     <script type="text/javascript" src="map.js"></script>
     <script type="text/javascript" src="player.js"></script>
   </head>
   <body onload="Game.init()">
+
+    <div class="container" style="width: 970px !important;">
+      <div class="navbar navbar-inverse navbar-default" role="navigation">
+        <div class="container">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="#">Caverns of Death</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" style="width: 970px !important;">
+      <div class="row">
+        <div class="main-map col-md-12" style="position: relative"></div>
+      </div>
+    </div>
+
   </body>
 </html>
