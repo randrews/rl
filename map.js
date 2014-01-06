@@ -1,8 +1,9 @@
 Map = function(w, h, generator){
+    this.w = w; this.h = h;
     this.cells = [];
     this.entities = [];
-    this.w = w; this.h = h;
     this.player_start = null; // Coords of the player, [x, y]
+    this.clearVisibility();
     if(generator) this.init(generator);
 };
 
@@ -22,6 +23,20 @@ Map.prototype.putEntity = function(x, y, v){
 
 Map.prototype.getEntity = function(x, y){
     return this.entities[x+y*this.w];
+};
+
+Map.prototype.clearVisibility = function(){
+    this.visibility = [];
+    return this;
+};
+
+Map.prototype.putVisibility = function(x, y, v){
+    this.visibility[x+y*this.w] = v;
+    return this;
+};
+
+Map.prototype.getVisibility = function(x, y){
+    return this.visibility[x+y*this.w];
 };
 
 Map.prototype.each = function(fn){
@@ -158,4 +173,21 @@ Map.prototype.tryMove = function(x, y){
     }
 
     return true;
+};
+
+Map.prototype.updateVisibility = function(player_x, player_y){
+    var that = this;
+    var transparent = function(x, y){
+        if(!that.inBounds(x, y)) return false;
+        if(that.get(x, y).match("^wall")) return false;
+        var prop = that.getEntity(x, y);
+        if(prop && prop.solid) return false;
+        return true;
+    };
+
+    var fov = new ROT.FOV.PreciseShadowcasting(transparent);
+    this.clearVisibility();
+    fov.compute(player_x, player_y, 20, function(x, y, r, visibility) {
+        that.putVisibility(x, y, 1);
+    });
 };

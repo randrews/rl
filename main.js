@@ -78,14 +78,18 @@ Game.draw = function(){
     display.clear();
     var px = this.player.x, py = this.player.y;
     var left = px-15, top = py-8;
+
+    this.map.updateVisibility(this.player.x, this.player.y);
+
     this.map.eachRegion(left, top, 31, 17, function(map, x, y, v){
-	if(!v) return;
+	    if(!v) return;
+        if(!map.getVisibility(x, y)) return;
 
-	var stack = [v];
-	var entity = map.getEntity(x, y); if(entity) stack.push(entity.name);
+	    var stack = [v];
+	    var entity = map.getEntity(x, y); if(entity) stack.push(entity.name);
 
-	if(x == px && y == py) stack.push('@');
-	display.draw(x-left, y-top, stack);
+	    if(x == px && y == py) stack.push('@');
+	    display.draw(x-left, y-top, stack);
     });
 };
 
