@@ -1,42 +1,25 @@
 Map = function(w, h, generator){
     this.w = w; this.h = h;
-    this.cells = [];
-    this.entities = [];
+    this.clear('cells');
+    this.clear('entities');
+    this.clear('visibility');
     this.player_start = null; // Coords of the player, [x, y]
-    this.clearVisibility();
+    this.fov = this.makeFov();
     if(generator) this.init(generator);
 };
 
-Map.prototype.put = function(x, y, v){
-    this.cells[x+y*this.w] = v;
+Map.prototype.put = function(x, y, v, layer){
+    this[layer || 'cells'][x+y*this.w] = v;
     return this;
 };
 
-Map.prototype.get = function(x, y){
-    return this.cells[x+y*this.w];
+Map.prototype.get = function(x, y, layer){
+    return this[layer || 'cells'][x+y*this.w];
 };
 
-Map.prototype.putEntity = function(x, y, v){
-    this.entities[x+y*this.w] = v;
+Map.prototype.clear = function(layer){
+    this[layer || 'cells'] = [];
     return this;
-};
-
-Map.prototype.getEntity = function(x, y){
-    return this.entities[x+y*this.w];
-};
-
-Map.prototype.clearVisibility = function(){
-    this.visibility = [];
-    return this;
-};
-
-Map.prototype.putVisibility = function(x, y, v){
-    this.visibility[x+y*this.w] = v;
-    return this;
-};
-
-Map.prototype.getVisibility = function(x, y){
-    return this.visibility[x+y*this.w];
 };
 
 Map.prototype.each = function(fn){
@@ -122,7 +105,7 @@ Map.prototype.init = function(generator){
     generator.getRooms().forEach(function(room){
         // Turn all doors into door entities
         room.getDoors(function(x, y){
-            that.putEntity(x, y, new Door());
+            that.put(x, y, new Door(), 'entities');
             that.put(x, y, "floor_" + [1, 2, 3, 4, 5, 6].random());
         });
     });
@@ -159,6 +142,19 @@ Map.prototype.init = function(generator){
     that.player_start = [player_room.getLeft()+1, player_room.getTop()+1];
 };
 
+Map.prototype.makeFov = function(){
+    var that = this;
+    var transparent = function(x, y){
+        if(!that.inBounds(x, y)) return false;
+        if(that.get(x, y).match("^wall")) return false;
+        var prop = that.get(x, y, 'entities');
+        if(prop && prop.solid) return false;
+        return true;
+    };
+
+    return new ROT.FOV.PreciseShadowcasting(transparent);
+};
+
 Map.prototype.tryMove = function(x, y){
     var val = this.get(x, y);
 
@@ -166,7 +162,7 @@ Map.prototype.tryMove = function(x, y){
     if(val.match("^wall")) return false;
 
     // Can't walk into a solid entity, bump it instead
-    var entity = this.getEntity(x, y);
+    var entity = this.get(x, y, 'entities');
     if(entity && entity.solid) {
         entity.bump();
         return false;
@@ -177,17 +173,9 @@ Map.prototype.tryMove = function(x, y){
 
 Map.prototype.updateVisibility = function(player_x, player_y){
     var that = this;
-    var transparent = function(x, y){
-        if(!that.inBounds(x, y)) return false;
-        if(that.get(x, y).match("^wall")) return false;
-        var prop = that.getEntity(x, y);
-        if(prop && prop.solid) return false;
-        return true;
-    };
 
-    var fov = new ROT.FOV.PreciseShadowcasting(transparent);
-    this.clearVisibility();
-    fov.compute(player_x, player_y, 20, function(x, y, r, visibility) {
-        that.putVisibility(x, y, 1);
+    this.clear('visibility');
+    this.fov.compute(player_x, player_y, 20, function(x, y, r, visibility) {
+        that.put(x, y, 1, 'visibility');
     });
 };

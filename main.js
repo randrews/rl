@@ -16,7 +16,7 @@ Game.init = function(){
         tileHeight: 24,
         tileSet: tileSet,
         tileMap: {
-	    // Floors
+	        // Floors
             "floor_1": [0, 24],
             "floor_2": [24, 24],
             "floor_3": [48, 24],
@@ -24,25 +24,25 @@ Game.init = function(){
             "floor_5": [96, 24],
             "floor_6": [120, 24],
 
-	    // Walls
-	    'wall_0': [216, 0],
-	    'wall_1': [360, 0],
-	    'wall_2': [240, 0],
-	    'wall_3': [432, 0],
-	    'wall_4': [312, 0],
-	    'wall_5': [336, 0],
-	    'wall_6': [384, 0],
-	    'wall_7': [552, 0],
-	    'wall_8': [288, 0],
-	    'wall_9': [456, 0],
-	    'wall_A': [264, 0],
-	    'wall_B': [576, 0],
-	    'wall_C': [408, 0],
-	    'wall_D': [528, 0],
-	    'wall_E': [504, 0],
-	    'wall_F': [480, 0],
+	        // Walls
+	        'wall_0': [216, 0],
+	        'wall_1': [360, 0],
+	        'wall_2': [240, 0],
+	        'wall_3': [432, 0],
+	        'wall_4': [312, 0],
+	        'wall_5': [336, 0],
+	        'wall_6': [384, 0],
+	        'wall_7': [552, 0],
+	        'wall_8': [288, 0],
+	        'wall_9': [456, 0],
+	        'wall_A': [264, 0],
+	        'wall_B': [576, 0],
+	        'wall_C': [408, 0],
+	        'wall_D': [528, 0],
+	        'wall_E': [504, 0],
+	        'wall_F': [480, 0],
 
-	    // Misc
+	        // Misc
             "door": [144, 24],
             "door_open": [168, 24],
             "@": [192, 24],
@@ -83,10 +83,10 @@ Game.draw = function(){
 
     this.map.eachRegion(left, top, 31, 17, function(map, x, y, v){
 	    if(!v) return;
-        if(!map.getVisibility(x, y)) return;
+        if(!map.get(x, y, 'visibility')) return;
 
 	    var stack = [v];
-	    var entity = map.getEntity(x, y); if(entity) stack.push(entity.name);
+	    var entity = map.get(x, y, 'entities'); if(entity) stack.push(entity.name);
 
 	    if(x == px && y == py) stack.push('@');
 	    display.draw(x-left, y-top, stack);
