@@ -28,6 +28,12 @@ Map.prototype.each = function(fn){
             fn(this, x, y, this.cells[x+y*this.w]);
 };
 
+Map.prototype.eachLayer = function(layer, fn){
+    for(var y=0; y < this.h; y++)
+        for(var x=0; x < this.w; x++)
+            fn(this, x, y, this[layer || 'cells'][x+y*this.w]);
+};
+
 Map.prototype.eachRegion = function(left, top, w, h, fn){
     for(var y=top; y < top+h; y++)
         for(var x=left; x < left+w; x++)
@@ -140,6 +146,11 @@ Map.prototype.init = function(generator){
     // Place the player in a random room
     var player_room = generator.getRooms().random();
     that.player_start = [player_room.getLeft()+1, player_room.getTop()+1];
+
+    // Init visibility
+    this.each(function(map, x, y, v){
+        that.put(x, y, 0, 'visibility');
+    });
 };
 
 Map.prototype.makeFov = function(){
@@ -174,7 +185,10 @@ Map.prototype.tryMove = function(x, y){
 Map.prototype.updateVisibility = function(player_x, player_y){
     var that = this;
 
-    this.clear('visibility');
+    this.eachLayer('visibility', function(map, x, y, v){
+        if(v == 1) map.put(x, y, 2, 'visibility');
+    });
+
     this.fov.compute(player_x, player_y, 20, function(x, y, r, visibility) {
         that.put(x, y, 1, 'visibility');
     });

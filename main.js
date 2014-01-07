@@ -45,6 +45,7 @@ Game.init = function(){
 	        // Misc
             "door": [144, 24],
             "door_open": [168, 24],
+            "fog": [240, 24],
             "@": [192, 24],
             " ": [216, 24],
             "": [216, 24]
@@ -83,12 +84,14 @@ Game.draw = function(){
 
     this.map.eachRegion(left, top, 31, 17, function(map, x, y, v){
 	    if(!v) return;
-        if(!map.get(x, y, 'visibility')) return;
+        var vis = map.get(x, y, 'visibility');
+        if(vis == 0) return;
 
 	    var stack = [v];
 	    var entity = map.get(x, y, 'entities'); if(entity) stack.push(entity.name);
 
 	    if(x == px && y == py) stack.push('@');
+	    if(vis == 2) stack.push('fog');
 	    display.draw(x-left, y-top, stack);
     });
 };
